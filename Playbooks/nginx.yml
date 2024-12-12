@@ -1,0 +1,54 @@
+---
+- name: Play For Installing Nginx
+  hosts: webservers
+  become: yes
+  become_user: root
+  tasks:
+  - name: Peforn apt update
+    shell: apt update
+  - name: Install Nginx
+    shell: apt install nginx -y
+  - name: Start Nginx Service
+    shell: service nginx start
+  - name: Create admin user
+    user:
+      name: adminuser
+      shell: /bin/bash
+    tags:
+      - user
+  tags:
+    - nginx
+
+- name: Play For Installing MySQL
+  hosts: dbservers
+  become: yes
+  become_user: root
+  tasks:
+  - name: Peforn apt update
+    shell: apt update
+  - name: Install mysql-server
+    apt:
+     name: mysql-server
+     update_cache: yes
+     state: latest
+  tags:
+    - mysql
+
+- name: Play For Installing httpd
+  hosts: appservers
+  become: yes
+  become_user: root
+  tasks:
+  - name: Peforn apt update
+    shell: apt update
+  - name: Install http-server
+    apt:
+     name: apache2
+     update_cache: yes
+     state: latest
+  - name: Reload Apache
+    service:
+      name: apache2
+      state: reloaded
+  tags:
+    - apache
