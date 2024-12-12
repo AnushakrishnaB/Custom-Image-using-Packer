@@ -1,0 +1,41 @@
+{
+    "_comment": "AMI Image With Docker & Nginx",
+    "variables": {
+        "region": "",
+        "source_ami": "",
+        "instance_type": "",
+        "vpc_id": "",
+        "subnet_id": ""
+    },
+    "_comment1": "packer build -var \"aws_secret_key=foo\" packer.json",
+    "_comment2": "packer build -var-file packer-vars.json packer.json",
+    "builders": [
+        {
+            "type": "amazon-ebs",
+            "region": "{{user `region`}}",
+            "source_ami": "{{user `source_ami`}}",
+            "instance_type": "{{user `instance_type`}}",
+            "ssh_username": "ubuntu",
+            "ami_name": "DevOpsClass-B28-ansible-{{isotime | clean_resource_name}}",
+            "vpc_id": "{{user `vpc_id`}}",
+            "subnet_id": "{{user `subnet_id`}}",
+            "tags": {
+                "Name": "DevOpsClass-B28-ansible-{{isotime | clean_resource_name}}"
+            }
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "shell",
+            "inline": [
+                "sudo useradd -m ansibleadmin --shell /bin/bash",
+                "sudo mkdir -p /home/ansibleadmin/.ssh",
+                "sudo chown -R ansibleadmin /home/ansibleadmin/",
+                "sudo touch /home/ansibleadmin/.ssh/authorized_keys",
+                "sudo usermod -aG sudo ansibleadmin",
+                "echo 'ansibleadmin ALL=(ALL) NOPASSWD: ALL' | sudo tee -a /etc/sudoers",
+                "echo 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDD/Fw7lpi1KbwPO8JkmNng/ZW7NwpXVQp3o+uQZDki5gEba2QdAdPxbmmIHYJ0FKBF7HxK4MiYkFHN/ox6u9HI68cMPbP7jtbAaFolxDxCr2pqs6S0eZ1pdQkCStVoVXf9aFEY60LA+8o+KCYfdA4Id/pp2qIgVCdQm8Xi6F7GSL+/JqNwy54M41q+GixN8dSHwhGz62qHUlIJgGU+3PYAUnZ3Oe709BOx/vA+lrCuU230AWMnpoA7Ck6BgwNXi6n4RjM6MhVaDtBCzDVKVxMIumQwp1Oy5ZCFALML1kqqChTjtDuNQep3Ed0EFxFNcoQoy52oWvFixqBaU1gdnsw9 kbsanu' | sudo tee /home/ansibleadmin/.ssh/authorized_keys"
+            ]
+        }
+    ]
+}
